@@ -2,19 +2,22 @@ package pumpserver
 
 import (
 	"context"
+	"iam-pump/internal/pumpserver/pump"
 	"iam-pump/internal/pumpserver/store"
 	"iam-pump/internal/pumpserver/store/mongo"
 
 	"github.com/che-kwas/iam-kit/logger"
 	"github.com/che-kwas/iam-kit/server"
+	"github.com/che-kwas/iam-kit/shutdown"
 )
 
 type pumpServer struct {
 	*server.Server
-	name   string
-	ctx    context.Context
-	cancel context.CancelFunc
-	log    *logger.Logger
+	name     string
+	ctx      context.Context
+	cancel   context.CancelFunc
+	pumpOpts *pump.PumpOptions
+	log      *logger.Logger
 
 	err error
 }
@@ -24,13 +27,14 @@ func NewServer(name string) *pumpServer {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &pumpServer{
-		name:   name,
-		ctx:    ctx,
-		cancel: cancel,
-		log:    logger.L(),
+		name:     name,
+		ctx:      ctx,
+		cancel:   cancel,
+		pumpOpts: pump.NewPumpOptions(),
+		log:      logger.L(),
 	}
 
-	return s.initStore().newServer()
+	return s.initStore().initPump().newServer()
 }
 
 // Run runs the pumpServer.
@@ -58,12 +62,21 @@ func (s *pumpServer) initStore() *pumpServer {
 	return s
 }
 
+func (s *pumpServer) initPump() *pumpServer {
+	if s.err != nil {
+		return s
+	}
+
+	pump.InitPump(s.ctx, s.pumpOpts).Start()
+	return s
+}
+
 func (s *pumpServer) newServer() *pumpServer {
 	if s.err != nil {
 		return s
 	}
 
-	// TODO add shutdown callback
-	s.Server, s.err = server.NewServer(s.name)
+	sd := shutdown.ShutdownFunc(pump.GetPump().Stop)
+	s.Server, s.err = server.NewServer(s.name, server.WithShutdown(sd))
 	return s
 }
