@@ -10,3 +10,4 @@ IAM pump server.
 - kafka
 - README
 - ci
+- healthz

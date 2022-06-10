@@ -2,6 +2,8 @@ package pumpserver
 
 import (
 	"context"
+	"iam-pump/internal/pumpserver/store"
+	"iam-pump/internal/pumpserver/store/mongo"
 
 	"github.com/che-kwas/iam-kit/logger"
 	"github.com/che-kwas/iam-kit/server"
@@ -34,8 +36,8 @@ func NewServer(name string) *pumpServer {
 // Run runs the pumpServer.
 func (s *pumpServer) Run() {
 	defer s.log.Sync()
-	// defer store.Client().Close()
 	defer s.cancel()
+	defer store.Client().Close(s.ctx)
 
 	if s.err != nil {
 		s.log.Fatal("failed to build the server: ", s.err)
@@ -47,6 +49,11 @@ func (s *pumpServer) Run() {
 }
 
 func (s *pumpServer) initStore() *pumpServer {
+	var storeIns store.Store
+	if storeIns, s.err = mongo.MongoStore(s.ctx); s.err != nil {
+		return s
+	}
+	store.SetClient(storeIns)
 
 	return s
 }
