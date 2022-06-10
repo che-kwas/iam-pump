@@ -1,0 +1,18 @@
+http:
+  addr: 0.0.0.0:8020 # 默认 0.0.0.0:8000
+  mode: debug # release, debug, test，默认 release
+  healthz: true # 是否开启健康检查, router: /healthz，默认 true
+  metrics: false # 是否开启 metrics, router: /metrics，默认 false
+  profiling: false # 是否开启性能分析, router: /debug/pprof，默认 false
+  ping-timeout: 10s # http 服务启动后，自检超时时间，默认 10s
+
+redis:
+  addrs:
+    - "127.0.0.1:6379" # 1个addr为单节点模式，多个addrs为cluster模式
+  password: "774411"
+  database: 0
+
+# https://pkg.go.dev/go.uber.org/zap#hdr-Configuring_Zap
+log:
+  development: true
+  disable-caller: true
