@@ -30,7 +30,7 @@ func NewServer(name string) *pumpServer {
 		log:    logger.L(),
 	}
 
-	return s.initStore().initCache().newServer()
+	return s.initStore().newServer()
 }
 
 // Run runs the pumpServer.
@@ -58,18 +58,12 @@ func (s *pumpServer) initStore() *pumpServer {
 	return s
 }
 
-func (s *pumpServer) initCache() *pumpServer {
-	if s.err != nil {
-		return s
-	}
-
-	return s
-}
-
 func (s *pumpServer) newServer() *pumpServer {
 	if s.err != nil {
 		return s
 	}
 
+	// TODO add shutdown callback
+	s.Server, s.err = server.NewServer(s.name)
 	return s
 }
