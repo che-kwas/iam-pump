@@ -9,3 +9,4 @@ IAM pump server.
 - test
 - kafka
 - README
+- ci
