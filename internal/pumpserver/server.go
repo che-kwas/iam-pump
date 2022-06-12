@@ -8,7 +8,6 @@ import (
 
 	"github.com/che-kwas/iam-kit/logger"
 	"github.com/che-kwas/iam-kit/server"
-	"github.com/che-kwas/iam-kit/shutdown"
 )
 
 type pumpServer struct {
@@ -67,7 +66,7 @@ func (s *pumpServer) initPump() *pumpServer {
 		return s
 	}
 
-	pump.InitPump(s.ctx, s.pumpOpts).Start()
+	go pump.InitPump(s.ctx, s.pumpOpts).Start()
 	return s
 }
 
@@ -76,7 +75,6 @@ func (s *pumpServer) newServer() *pumpServer {
 		return s
 	}
 
-	sd := shutdown.ShutdownFunc(pump.GetPump().Stop)
-	s.Server, s.err = server.NewServer(s.name, server.WithShutdown(sd))
+	s.Server, s.err = server.NewServer(s.name)
 	return s
 }

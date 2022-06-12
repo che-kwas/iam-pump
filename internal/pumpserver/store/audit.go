@@ -6,5 +6,5 @@ import (
 
 // AuditStore defines the audit storage interface.
 type AuditStore interface {
-	Create(ctx context.Context) error
+	InsertMany(ctx context.Context, records []interface{}) error
 }
