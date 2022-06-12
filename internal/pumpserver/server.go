@@ -38,9 +38,11 @@ func NewServer(name string) *pumpServer {
 
 // Run runs the pumpServer.
 func (s *pumpServer) Run() {
-	defer s.log.Sync()
 	defer s.cancel()
-	defer store.Client().Close(s.ctx)
+	defer s.log.Sync()
+	if cli := store.Client(); cli != nil {
+		defer cli.Close(s.ctx)
+	}
 
 	if s.err != nil {
 		s.log.Fatal("failed to build the server: ", s.err)

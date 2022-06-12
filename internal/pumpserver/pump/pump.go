@@ -116,6 +116,7 @@ func (p *Pump) purgeQueue() []interface{} {
 	}
 
 	vals := lrange.Val()
+	p.log.Debugf("pop from queue, len = %d", len(vals))
 
 	result := make([]interface{}, len(vals))
 	for i, v := range vals {
@@ -131,5 +132,10 @@ func (p *Pump) purgeQueue() []interface{} {
 }
 
 func (p *Pump) writeToStore(records []interface{}) error {
+	if len(records) == 0 {
+		return nil
+	}
+
+	p.log.Debugf("write to store, len = %d", len(records))
 	return p.store.InsertMany(p.ctx, records)
 }

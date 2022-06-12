@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	iamongo "github.com/che-kwas/iam-kit/mongo"
-	"github.com/marmotedu/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"iam-pump/internal/pumpserver/store"
@@ -42,9 +41,5 @@ func MongoStore(ctx context.Context) (store.Store, error) {
 		mgoStore = &datastore{mgo}
 	})
 
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to connect to mongo")
-	}
-
-	return mgoStore, nil
+	return mgoStore, err
 }

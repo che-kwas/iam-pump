@@ -6,6 +6,9 @@ http:
   mode: release # release, debug, test，默认 release
   healthz: true # 是否开启健康检查, router: /healthz，默认 true
   ping-timeout: 10s # http 服务启动后，自检超时时间，默认 10s
+  middlewares:
+    - recovery
+    - logger
 
 redis:
   addrs:
