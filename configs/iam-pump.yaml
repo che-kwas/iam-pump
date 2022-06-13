@@ -17,7 +17,11 @@ redis:
   database: 0
 
 mongo:
-  uri: "mongodb://che:'774411'@127.0.0.1:27017/iam_authz_audit"
+  uri: "mongodb://127.0.0.1:27017" # 默认 mongodb://127.0.0.1:27017
+  database: iam_authz_audit
+  username: che
+  password: "774411"
+  timeout: 5s # connect timeout，默认 5s
   max-pool-size: 200 # 默认 100
 
 # https://pkg.go.dev/go.uber.org/zap#hdr-Configuring_Zap

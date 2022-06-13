@@ -5,7 +5,7 @@ import (
 	"context"
 	"sync"
 
-	iamongo "github.com/che-kwas/iam-kit/mongo"
+	iamgo "github.com/che-kwas/iam-kit/mongo"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"iam-pump/internal/pumpserver/store"
@@ -29,7 +29,7 @@ var (
 )
 
 // MongoStore returns a mongo store instance.
-func MongoStore(ctx context.Context) (store.Store, error) {
+func MongoStore() (store.Store, error) {
 	if mgoStore != nil {
 		return mgoStore, nil
 	}
@@ -37,7 +37,7 @@ func MongoStore(ctx context.Context) (store.Store, error) {
 	var err error
 	var mgo *mongo.Client
 	once.Do(func() {
-		mgo, err = iamongo.NewMongoIns(ctx)
+		mgo, err = iamgo.NewMongoIns()
 		mgoStore = &datastore{mgo}
 	})
 

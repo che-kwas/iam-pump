@@ -74,7 +74,7 @@ func (p *Pump) Start() {
 // pump transfers AuditRecord from redis to mongo.
 func (p *Pump) pump() {
 	if err := p.mutex.Lock(); err != nil {
-		p.log.Info("there is already a worker pumping.")
+		p.log.Debug("there is already a worker pumping.")
 		return
 	}
 

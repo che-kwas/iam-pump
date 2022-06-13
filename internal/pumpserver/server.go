@@ -55,7 +55,7 @@ func (s *pumpServer) Run() {
 
 func (s *pumpServer) initStore() *pumpServer {
 	var storeIns store.Store
-	if storeIns, s.err = mongo.MongoStore(s.ctx); s.err != nil {
+	if storeIns, s.err = mongo.MongoStore(); s.err != nil {
 		return s
 	}
 	store.SetClient(storeIns)
