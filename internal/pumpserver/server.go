@@ -38,27 +38,25 @@ func NewServer(name string) *pumpServer {
 
 // Run runs the pumpServer.
 func (s *pumpServer) Run() {
+	if s.err != nil {
+		s.log.Fatal(s.err)
+	}
+
 	defer s.cancel()
 	defer s.log.Sync()
-	if cli := store.Client(); cli != nil {
-		defer cli.Close(s.ctx)
-	}
-
-	if s.err != nil {
-		s.log.Fatal("failed to build the server: ", s.err)
-	}
+	defer store.Client().Close(s.ctx)
 
 	if err := s.Server.Run(); err != nil {
-		s.log.Fatal("server stopped unexpectedly: ", err)
+		s.log.Fatal(err)
 	}
 }
 
 func (s *pumpServer) initStore() *pumpServer {
-	var storeIns store.Store
-	if storeIns, s.err = mongo.MongoStore(); s.err != nil {
+	var cli store.Store
+	if cli, s.err = mongo.NewMongoStore(); s.err != nil {
 		return s
 	}
-	store.SetClient(storeIns)
+	store.SetClient(cli)
 
 	return s
 }

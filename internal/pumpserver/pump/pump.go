@@ -24,7 +24,6 @@ const (
 
 // Pump defines the structure of a pump.
 type Pump struct {
-	store    store.AuditStore
 	interval time.Duration
 	mutex    *redsync.Mutex
 	ctx      context.Context
@@ -42,7 +41,6 @@ func InitPump(ctx context.Context, opts *PumpOptions) *Pump {
 	mutex := rs.NewMutex(redlockName, redsync.WithExpiry(redlockExpiry))
 
 	pumpIns = &Pump{
-		store:    store.Client().Audit(),
 		interval: opts.PumpInterval,
 		mutex:    mutex,
 		ctx:      ctx,
@@ -74,7 +72,7 @@ func (p *Pump) Start() {
 // pump transfers AuditRecord from redis to mongo.
 func (p *Pump) pump() {
 	if err := p.mutex.Lock(); err != nil {
-		p.log.Debug("there is already a worker pumping.")
+		p.log.Debugf("there is already a worker pumping: %s", err.Error())
 		return
 	}
 
@@ -137,5 +135,5 @@ func (p *Pump) writeToStore(records []interface{}) error {
 	}
 
 	p.log.Debugf("write to store, len = %d", len(records))
-	return p.store.InsertMany(p.ctx, records)
+	return store.Client().InsertMany(p.ctx, records)
 }
