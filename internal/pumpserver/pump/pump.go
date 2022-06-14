@@ -58,6 +58,7 @@ func GetPump() *Pump {
 // Start starts the pump.
 func (p *Pump) Start() {
 	ticker := time.NewTicker(p.interval)
+	defer ticker.Stop()
 
 	for {
 		select {
