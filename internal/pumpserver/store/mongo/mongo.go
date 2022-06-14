@@ -12,7 +12,7 @@ import (
 
 const (
 	db  = "iam_authz_audit"
-	col = "audit-logs"
+	col = "audit_logs"
 )
 
 type mgoStore struct {

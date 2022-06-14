@@ -97,7 +97,6 @@ type AuditRecord struct {
 	Request    string
 	Policies   string
 	Deciders   string
-	ExpireAt   time.Time
 }
 
 func (p *Pump) purgeQueue() []interface{} {
@@ -114,7 +113,6 @@ func (p *Pump) purgeQueue() []interface{} {
 	}
 
 	vals := lrange.Val()
-	p.log.Debugf("pop from queue, len = %d", len(vals))
 
 	result := make([]interface{}, len(vals))
 	for i, v := range vals {
@@ -134,6 +132,6 @@ func (p *Pump) writeToStore(records []interface{}) error {
 		return nil
 	}
 
-	p.log.Debugf("write to store, len = %d", len(records))
+	p.log.Debugf("pump len = %d", len(records))
 	return store.Client().InsertMany(p.ctx, records)
 }
