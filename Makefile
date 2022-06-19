@@ -54,6 +54,12 @@ update:
 clean:
 	-rm -vrf $(OUTPUT_DIR)
 
+## docker: Docker build
+.PHONY: docker
+docker:
+	docker build --build-arg VERSION=#{VERSION} -t chekwas/iam-pump:${VERSION} .
+	docker push chekwas/iam-pump:${VERSION}
+
 ## help: Show help info.
 .PHONY: help
 help: Makefile
