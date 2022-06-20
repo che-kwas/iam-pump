@@ -22,8 +22,9 @@ RUN apk add tzdata && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
       && echo ${TZ} > /etc/timezone \
       && apk del tzdata
 
-COPY --from=build /iam-pump/* /
+COPY --from=build /iam-pump/iam-pump /opt/iam/bin/
+COPY --from=build /iam-pump/iam-pump.yaml /etc/iam/
 
 EXPOSE 8010
-ENTRYPOINT [ "/iam-pump" ]
-CMD [ "-c", "/iam-pump.yaml" ]
+ENTRYPOINT [ "/opt/iam/bin/iam-pump" ]
+CMD [ "-c", "/etc/iam/iam-pump.yaml" ]
