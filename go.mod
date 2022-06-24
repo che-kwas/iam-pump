@@ -1,11 +1,11 @@
 module iam-pump
 
-go 1.17
+go 1.18
 
 require (
 	github.com/che-kwas/iam-kit v0.4.0
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/go-redsync/redsync/v4 v4.5.0
+	github.com/go-redsync/redsync/v4 v4.5.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/vmihailenco/msgpack/v5 v5.3.5
@@ -55,15 +55,17 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
-	golang.org/x/net v0.0.0-20220607020251-c690dde0001d // indirect
+	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
+	golang.org/x/net v0.0.0-20220622184535-263ec571b305 // indirect
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
-	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
+	golang.org/x/sys v0.0.0-20220622161953-175b2fd9d664 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20220608133413-ed9918b62aac // indirect
+	google.golang.org/genproto v0.0.0-20220623142657-077d458a5694 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/che-kwas/iam-kit => ../iam-kit
