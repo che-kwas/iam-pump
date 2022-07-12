@@ -12,12 +12,12 @@ http:
 
 redis:
   addrs:
-    - "127.0.0.1:6379" # 1个addr为单节点模式，多个addrs为cluster模式
+    - "localhost:6379"
   password: "774411"
   database: 0
 
 mongo:
-  uri: "mongodb://127.0.0.1:27017" # 默认 mongodb://127.0.0.1:27017
+  uri: "mongodb://localhost:27017" # 默认 mongodb://localhost:27017
   database: iam_authz_audit
   username: che
   password: "774411"
