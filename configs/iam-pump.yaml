@@ -10,14 +10,15 @@ http:
     - recovery
     - logger
 
-redis:
-  addrs:
-    - "localhost:6379"
-  password: "774411"
-  database: 0
+kafka:
+  version: "3.1.0"
+  brokers:
+    - "localhost:9092"
+  from-beginning: true
+  pool-size: 10 # consumer pool size, 默认 10
 
 mongo:
-  uri: "mongodb://localhost:27017" # 默认 mongodb://localhost:27017
+  uri: "mongodb://localhost:27017"
   database: iam_authz_audit
   username: che
   password: "774411"
