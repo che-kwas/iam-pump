@@ -9,6 +9,7 @@ var client Store
 
 // Store defines the behavior of a store.
 type Store interface {
+	InsertOne(ctx context.Context, record interface{}) error
 	InsertMany(ctx context.Context, records []interface{}) error
 	Close(ctx context.Context) error
 }

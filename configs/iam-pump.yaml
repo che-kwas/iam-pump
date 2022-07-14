@@ -1,6 +1,3 @@
-pump:
-  pump-interval: 10s # 数据采集（pump）间隔，默认 10s
-
 http:
   addr: 0.0.0.0:8020 # 默认 0.0.0.0:8000
   mode: release # release, debug, test，默认 release

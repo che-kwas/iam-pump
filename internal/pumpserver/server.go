@@ -2,6 +2,8 @@ package pumpserver
 
 import (
 	"context"
+	"iam-pump/internal/pumpserver/consumer"
+	"iam-pump/internal/pumpserver/consumer/kafka"
 	"iam-pump/internal/pumpserver/pump"
 	"iam-pump/internal/pumpserver/store"
 	"iam-pump/internal/pumpserver/store/mongo"
@@ -13,11 +15,10 @@ import (
 
 type pumpServer struct {
 	*server.Server
-	name     string
-	ctx      context.Context
-	cancel   context.CancelFunc
-	pumpOpts *pump.PumpOptions
-	log      *logger.Logger
+	name   string
+	ctx    context.Context
+	cancel context.CancelFunc
+	log    *logger.Logger
 
 	err error
 }
@@ -27,11 +28,10 @@ func NewServer(name string) *pumpServer {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &pumpServer{
-		name:     name,
-		ctx:      ctx,
-		cancel:   cancel,
-		pumpOpts: pump.NewPumpOptions(),
-		log:      logger.L(),
+		name:   name,
+		ctx:    ctx,
+		cancel: cancel,
+		log:    logger.L(),
 	}
 
 	return s.initStore().initPump().newServer()
@@ -66,7 +66,15 @@ func (s *pumpServer) initPump() *pumpServer {
 		return s
 	}
 
-	go pump.InitPump(s.ctx, s.pumpOpts).Start()
+	var c consumer.Consumer
+	msgHandler := consumer.MsgHandler(pump.TransferAuditRecord)
+	c, s.err = kafka.NewConsumer(s.ctx, msgHandler)
+	if s.err != nil {
+		return s
+	}
+	consumer.SetConsumer(c)
+
+	go pump.InitPump(s.ctx, c).Start()
 	return s
 }
 
@@ -78,6 +86,7 @@ func (s *pumpServer) newServer() *pumpServer {
 	s.Server, s.err = server.NewServer(
 		s.name,
 		server.WithShutdown(shutdown.ShutdownFunc(store.Client().Close)),
+		server.WithShutdown(shutdown.ShutdownFunc(consumer.GetConsumer().Stop)),
 	)
 
 	return s

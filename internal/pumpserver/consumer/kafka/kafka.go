@@ -1,5 +1,5 @@
-// Package consumer is the kafka consumer builder.
-package consumer
+// Package kafka implements the `iam-pump/internal/pumpserver/consumer.Consumer` interface.
+package kafka
 
 import (
 	"context"
@@ -7,16 +7,14 @@ import (
 
 	"github.com/Shopify/sarama"
 	"github.com/che-kwas/iam-kit/logger"
-)
 
-// MsgHandler is the callback for handling the received message.
-type MsgHandler func(topic string, key, value []byte)
+	"iam-pump/internal/pumpserver/consumer"
+)
 
 // Consumer is the kafka consumer group handler.
 type Consumer struct {
 	ready      chan bool
-	msgHandler MsgHandler
-	ctx        context.Context
+	msgHandler consumer.MsgHandler
 	group      sarama.ConsumerGroup
 	topic      string
 	poolSize   int
@@ -24,9 +22,10 @@ type Consumer struct {
 }
 
 // NewConsumer returns a kafka consumer.
-func NewConsumer(ctx context.Context, msgHandler MsgHandler, opts *KafkaOptions) (*Consumer, error) {
+func NewConsumer(ctx context.Context, msgHandler consumer.MsgHandler) (consumer.Consumer, error) {
+	opts, _ := getKafkaOpts()
 	log := logger.L()
-	log.Debugf("building kafka consumer with options: %+v", opts)
+	log.Debugf("new kafka consumer with options: %+v", opts)
 
 	group, err := newConsumerGroup(opts)
 	if err != nil {
@@ -36,7 +35,6 @@ func NewConsumer(ctx context.Context, msgHandler MsgHandler, opts *KafkaOptions)
 	consumer := &Consumer{
 		ready:      make(chan bool),
 		msgHandler: msgHandler,
-		ctx:        ctx,
 		group:      group,
 		topic:      opts.Topic,
 		poolSize:   opts.PoolSize,
@@ -46,8 +44,8 @@ func NewConsumer(ctx context.Context, msgHandler MsgHandler, opts *KafkaOptions)
 	return consumer, nil
 }
 
-// Start starts the consume loop.
-func (c *Consumer) Start() {
+// Start starts the message consuming loop.
+func (c *Consumer) Start(ctx context.Context) {
 	wg := &sync.WaitGroup{}
 	wg.Add(c.poolSize)
 	for i := 0; i < c.poolSize; i++ {
@@ -57,11 +55,11 @@ func (c *Consumer) Start() {
 				// `Consume` should be called inside an infinite loop, when a
 				// server-side rebalance happens, the consumer session will need to be
 				// recreated to get the new claims
-				if err := c.group.Consume(c.ctx, []string{c.topic}, c); err != nil {
+				if err := c.group.Consume(ctx, []string{c.topic}, c); err != nil {
 					c.log.Errorw("kafka consumer", "error", err)
 				}
 				// check if context was cancelled, signaling that the consumer should stop
-				if c.ctx.Err() != nil {
+				if ctx.Err() != nil {
 					return
 				}
 
@@ -77,8 +75,8 @@ func (c *Consumer) Start() {
 	wg.Wait()
 }
 
-// Close closes the consume group.
-func (c *Consumer) Close(ctx context.Context) error {
+// Stop stops the message consuming loop.
+func (c *Consumer) Stop(ctx context.Context) error {
 	return c.group.Close()
 }
 
@@ -87,7 +85,7 @@ var _ sarama.ConsumerGroupHandler = &Consumer{}
 
 // Setup is run at the beginning of a new session, before ConsumeClaim
 func (c *Consumer) Setup(sarama.ConsumerGroupSession) error {
-	logger.L().Debug("setup kafka consumer")
+	c.log.Debug("setup kafka consumer")
 	// Mark the consumer as ready
 	close(c.ready)
 	return nil
@@ -95,7 +93,7 @@ func (c *Consumer) Setup(sarama.ConsumerGroupSession) error {
 
 // Cleanup is run at the end of a session, once all ConsumeClaim goroutines have exited
 func (c *Consumer) Cleanup(sarama.ConsumerGroupSession) error {
-	logger.L().Debug("cleanup kafka consumer")
+	c.log.Debug("cleanup kafka consumer")
 	return nil
 }
 
@@ -108,7 +106,8 @@ func (c *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim saram
 	for {
 		select {
 		case message := <-claim.Messages():
-			c.msgHandler(message.Topic, message.Key, message.Value)
+			c.log.Infow("consume message", "topic", message.Topic, "key", string(message.Key), "partition", message.Partition, "offset", message.Offset)
+			c.msgHandler(session.Context(), message.Value)
 			session.MarkMessage(message, "")
 
 		// Should return when `session.Context()` is done.

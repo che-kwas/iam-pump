@@ -1,4 +1,4 @@
-package consumer
+package kafka
 
 import (
 	"github.com/spf13/viper"

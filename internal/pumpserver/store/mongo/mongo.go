@@ -1,4 +1,4 @@
-// Package mongo implements `iam-pump/internal/pumpserver/store.Store` interface.
+// Package mongo implements the `iam-pump/internal/pumpserver/store.Store` interface.
 package mongo
 
 import (
@@ -20,6 +20,13 @@ type mgoStore struct {
 }
 
 var _ store.Store = &mgoStore{}
+
+// InsertOne inserts one record into the collection.
+func (m *mgoStore) InsertOne(ctx context.Context, record interface{}) error {
+	_, err := m.mgo.Database(db).Collection(col).InsertOne(ctx, record)
+
+	return err
+}
 
 // InsertMany inserts multiple records into the collection.
 func (m *mgoStore) InsertMany(ctx context.Context, records []interface{}) error {
